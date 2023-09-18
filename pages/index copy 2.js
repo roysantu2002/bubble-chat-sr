@@ -1,6 +1,9 @@
 import Head from 'next/head';
-import { useState, useEffect } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
+import styles from '../styles/Home.module.css';
+import { motion, AnimatePresence } from 'framer-motion';
+
+import { useState } from 'react';
 
 const transition = {
 	type: 'spring',
@@ -9,37 +12,66 @@ const transition = {
 	damping: 20,
 };
 
+const variants = {
+	initial: {
+		opacity: 0,
+		y: 300,
+	},
+	enter: {
+		opacity: 1,
+		y: 0,
+		transition,
+	},
+};
 export default function Home() {
 	const [chatMessages, setChatMessages] = useState([]);
 	const [text, setText] = useState('');
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [inputs, setInputs] = useState(['']);
 
-	useEffect(() => {
-		const filteredMessages = chatMessages.filter(
-			(message) => message.length <= 3
-		);
-		setChatMessages(filteredMessages);
-	}, []);
+	const handleInputChange = (e, index) => {
+		const updatedInputs = [...inputs];
+		updatedInputs[index] = e.target.value;
+		setInputs(updatedInputs);
+	};
+
+	const handleKeyPress = (e, index) => {
+		if (e.key === 'Enter') {
+			e.preventDefault();
+			setInputs([...inputs, '']);
+		}
+	};
+
+	// const handleChange = (e) => {
+	// 	setText(e.target.value);
+	// 	setIsExpanded(e.target.value.length > 0);
+	// };
 
 	const handleChange = (e) => {
 		setText(e.target.value);
 		e.target.style.width = e.target.value.length + 1 + 'ch'; // Adjust input width based on content length
 	};
 
-	const handleKeyDown = (e) => {
-		if (e.key === 'Enter' && text.trim().length > 0) {
-			const newMessage = text.trim();
-			setChatMessages((prevMessages) => [...prevMessages, newMessage]);
-			setText('');
-			setInputs(['']);
+	// const handleKeyPress = (e) => {
+	// 	if (e.key === 'Enter' && e.target.value.trim() !== '') {
+	// 		setChatMessages([...chatMessages, e.target.value.trim()]);
+	// 		e.target.value = '';
+	// 	}
+	// };
 
-			// Automatically remove older messages
-			setTimeout(() => {
-				setChatMessages((prevMessages) => prevMessages.slice(-2));
-			}, 2000); // This timeout value (2000ms) can be adjusted
+	const ChatBubble = ({ text }) => {
+		return <div className='talk-bubble round'>{text}</div>;
+	};
+
+	const handleKeyDown = (e) => {
+		if (e.key === 'Enter' && e.target.value.trim() !== '') {
+			setChatMessages([...chatMessages, e.target.value.trim()]);
+			e.target.value = '';
+			e.preventDefault(); // Prevent the default behavior of the Enter key
 		}
 	};
+
+	console.log(chatMessages);
 
 	return (
 		<div className='container'>
@@ -49,67 +81,64 @@ export default function Home() {
 				<link rel='icon' href='/favicon.ico' />
 			</Head>
 
-			<AnimatePresence>
-				<main className='main-container'>
-					<div className='message-container'>
-						{chatMessages.map((message, index) => (
-							<div
+			<main>
+				<AnimatePresence>
+					<div className='chat-screen'>
+						{inputs.map((input, index) => (
+							<input
 								key={index}
-								className={`message ${
-									index === chatMessages.length - 1
-										? 'bubble left round expanded latest'
-										: 'bubble left round expanded'
-								}`}
-							>
-								{message}
-							</div>
+								className='green-input inputStyle'
+								value={input}
+								onChange={(e) => handleInputChange(e, index)}
+								onKeyDown={(e) => handleKeyPress(e, index)}
+								placeholder='Type a message...'
+							/>
 						))}
 					</div>
 
-					<input
-						value={text}
-						type='text'
-						onKeyDown={handleKeyDown}
-						onChange={handleChange}
-						className={isExpanded ? 'green-input expanded' : 'green-input'}
-					/>
-				</main>
-			</AnimatePresence>
+					{/* {chatMessages.map((message, index) => (
+						<div key={index} className='bubble left'>
+							{message}
+						</div>
+						// <ChatBubble key={index} text={message} />
+					))} */}
+
+					{/* <ol className={styles['list']}>
+						{chatMessages.map((item, index) => (
+							<motion.li
+								key={index}
+								className={styles['sent']}
+								initial='initial'
+								animate='enter'
+								variants={variants}
+								layout
+							>
+								{item.message}
+							</motion.li>
+						))}
+					</ol> */}
+				</AnimatePresence>
+				{/* <ol className={styles.list}>
+					{chatMessages.map(({ message, index }) => (
+						<li key={index} className='sent'>
+							<ChatBubble key={index} text={message} />
+						</li>
+					))}
+				</ol> */}
+				{/* <div className='chat-screen'>
+					{chatMessages.map((message, index) => (
+						<ChatBubble key={index} text={message} />
+					))}
+				</div> */}
+				{/* <input
+					type='text'
+					onKeyDown={handleKeyDown}
+					onChange={handleChange}
+					className={isExpanded ? 'green-input expanded' : 'green-input'}
+				/> */}
+			</main>
 
 			<style jsx>{`
-				.message-container {
-					display: flex;
-					flex-direction: column;
-					height: 200px; /* Set a fixed height for the message container */
-				}
-
-				@keyframes fadeOut {
-					0% {
-						opacity: 1;
-					}
-					100% {
-						opacity: 0;
-					}
-				}
-
-				.message {
-					flex-shrink: 0; /* Prevent messages from shrinking */
-					margin-bottom: 5px;
-					padding: 10px;
-					color: #000;
-					background-color: #fff;
-					border-radius: 10px;
-					width: 100%; /* Added to make messages grow to 100% width *
-				}
-
-				.message:nth-last-child(n + 3) {
-					animation: fadeOut 2s; /* Adjust the duration as needed */
-				}
-
-				.message.latest {
-					opacity: 1; /* Keep the latest message fully visible */
-				}
-
 				.green-input {
 					border-radius: 20px;
 					-webkit-border-radius: 20px;
@@ -122,8 +151,8 @@ export default function Home() {
 					font-size: 16px;
 					outline: none;
 					background-color: #fff;
-					color: #000;
-					.caret-color: #008000;
+					color: #008000;
+					caret-color: #008000;
 					width: 0; /* Set initial width to 0 */
 					min-width: 1ch;
 					transition: width 0.3s; /* Add a transition for smooth growth */

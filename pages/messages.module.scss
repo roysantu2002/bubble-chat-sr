@@ -1,0 +1,50 @@
+.list {
+	--sentColor: #0b93f6;
+	--receiveColor: #e5e5ea;
+	--bg: #fff;
+
+	display: flex;
+	flex-direction: column;
+	max-width: 450px;
+	margin: 0 auto;
+	padding: 0;
+	list-style: none;
+}
+
+[data-theme='dark'] .list {
+	--bg: #161515;
+}
+
+.sent {
+	align-self: flex-end;
+	color: white;
+	background: var(--sentColor);
+
+	&:before {
+		right: -7px;
+		background-color: var(--sentColor);
+		border-bottom-left-radius: 16px 14px;
+	}
+
+	&:after {
+		right: -26px;
+		border-bottom-left-radius: 10px;
+	}
+}
+
+.received {
+	align-self: flex-start;
+	color: black;
+	background: var(--receiveColor);
+
+	&:before {
+		left: -7px;
+		background-color: var(--receiveColor);
+		border-bottom-right-radius: 16px 14px;
+	}
+
+	&:after {
+		left: -26px;
+		border-bottom-right-radius: 10px;
+	}
+}

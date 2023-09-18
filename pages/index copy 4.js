@@ -22,6 +22,19 @@ export default function Home() {
 		setChatMessages(filteredMessages);
 	}, []);
 
+	const handleInputChange = (e, index) => {
+		const updatedInputs = [...inputs];
+		updatedInputs[index] = e.target.value;
+		setInputs(updatedInputs);
+	};
+
+	const handleKeyPress = (e, index) => {
+		if (e.key === 'Enter') {
+			e.preventDefault();
+			setInputs([...inputs, '']);
+		}
+	};
+
 	const handleChange = (e) => {
 		setText(e.target.value);
 		e.target.style.width = e.target.value.length + 1 + 'ch'; // Adjust input width based on content length
@@ -29,15 +42,8 @@ export default function Home() {
 
 	const handleKeyDown = (e) => {
 		if (e.key === 'Enter' && text.trim().length > 0) {
-			const newMessage = text.trim();
-			setChatMessages((prevMessages) => [...prevMessages, newMessage]);
+			setChatMessages([...chatMessages, text.trim()]);
 			setText('');
-			setInputs(['']);
-
-			// Automatically remove older messages
-			setTimeout(() => {
-				setChatMessages((prevMessages) => prevMessages.slice(-2));
-			}, 2000); // This timeout value (2000ms) can be adjusted
 		}
 	};
 
@@ -56,9 +62,7 @@ export default function Home() {
 							<div
 								key={index}
 								className={`message ${
-									index === chatMessages.length - 1
-										? 'bubble left round expanded latest'
-										: 'bubble left round expanded'
+									index === chatMessages.length - 2 ? 'latest' : ''
 								}`}
 							>
 								{message}
@@ -67,7 +71,6 @@ export default function Home() {
 					</div>
 
 					<input
-						value={text}
 						type='text'
 						onKeyDown={handleKeyDown}
 						onChange={handleChange}
@@ -83,31 +86,40 @@ export default function Home() {
 					height: 200px; /* Set a fixed height for the message container */
 				}
 
-				@keyframes fadeOut {
-					0% {
-						opacity: 1;
-					}
-					100% {
-						opacity: 0;
-					}
-				}
-
 				.message {
 					flex-shrink: 0; /* Prevent messages from shrinking */
 					margin-bottom: 5px;
 					padding: 10px;
-					color: #000;
-					background-color: #fff;
+					background-color: #f0f0f0;
 					border-radius: 10px;
-					width: 100%; /* Added to make messages grow to 100% width *
 				}
 
 				.message:nth-last-child(n + 3) {
-					animation: fadeOut 2s; /* Adjust the duration as needed */
+					display: none; /* Hide messages beyond the latest two */
+				}
+
+				.input-container {
+					position: fixed;
+					bottom: 0;
+					width: 100%;
+				}
+
+				.message {
+					padding: 10px;
+					background-color: #f0f0f0; /* Set the initial message background color */
+					color: #000; /* Set the initial message text color */
+					margin-bottom: 5px;
+					border-radius: 10px;
+					opacity: 1;
+					transition: opacity 2s; /* Add transition for opacity */
 				}
 
 				.message.latest {
 					opacity: 1; /* Keep the latest message fully visible */
+				}
+
+				.message:not(.latest) {
+					opacity: 0; /* Make older messages completely invisible */
 				}
 
 				.green-input {
