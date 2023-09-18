@@ -49,23 +49,32 @@ export default function Home() {
 				<link rel='icon' href='/favicon.ico' />
 			</Head>
 
+			<div className='chat chat-start'>
+				<div className='chat-header'>
+					Obi-Wan Kenobi
+					<time className='text-xs opacity-50'>2 hours ago</time>
+				</div>
+				<div className='chat-bubble'>You were the Chosen One!</div>
+				<div className='chat-footer opacity-50'>Seen</div>
+			</div>
+
 			<AnimatePresence>
 				<main className='main-container'>
 					<div className='message-container'>
 						{chatMessages.map((message, index) => (
-							<div className='chat chat-start p-1 w-fit' key={index}>
-								<div className='chat-bubble bg-white text-black'>{message}</div>
+							<div
+								key={index}
+								className={`message ${
+									index === chatMessages.length - 1
+										? 'chat-bubble expanded latest'
+										: 'chat-bubble  expanded'
+								}`}
+							>
+								{message}
+								<div className='chat chat-start'>
+									<div className='chat-bubble expanded'>{message}</div>
+								</div>
 							</div>
-							// <div
-							// 	key={index}
-							// 	className={`message ${
-							// 		index === chatMessages.length - 1
-							// 			? 'chat-bubble expanded latest'
-							// 			: 'chat-bubble  expanded'
-							// 	}`}
-							// >
-							// 	{message}
-							// </div>
 						))}
 					</div>
 
